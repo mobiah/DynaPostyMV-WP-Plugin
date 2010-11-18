@@ -1,10 +1,10 @@
-=== DynaPosty ===
+=== Dynamic Landing Pages made easy - DynaPosty ===
 
 Contributors: Mobiah
 Tags: dynamic, dynamic content, ppc tools, dynamic targeting, landing pages, dynamic landers, shortcodes, mobiah
 Requires at least: 2.7
 Tested up to: 3.0.1
-Stable tag: 0.6
+Stable tag: 0.2
 
 DynaPosty lets you define url variables and create shortcodes for corresponding dynamic content fields.
 
@@ -81,12 +81,12 @@ A: The blue rows are special.  The "shortcode" row contains all the shortcodes y
 
 == Upgrade Notice ==
 
-Version 0.5 is the first full version to be released.  
+Version 0.2 is the first full version to be released.  
 
 
 == Changelog ==
 
-0.5: 
+0.2: Nov 22, 2010 
 
 Initial release
 
