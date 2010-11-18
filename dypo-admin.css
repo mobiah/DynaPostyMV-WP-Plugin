@@ -1,0 +1,88 @@
+/* DynaPosty Admin CSS */
+
+#dypo_icon40x35 {
+	background:url("../images/icons32.png") no-repeat scroll -432px -5px transparent;
+}
+.dypo_messageContainer {
+	height: 20px;
+}
+#dypo_contentMessage {	
+}
+.dypo_message {
+	padding: 0 0 0 5px;
+	background-color: #FFFFE0;	
+	border: 1px solid #E6DB55;	
+	-moz-border-radius: 3px;	
+	-webkit-border-radius: 3px;	
+	border-radius: 3px;
+}
+.dypo_error_message {
+	background-color: #F0C0C5;
+	border: 1px solid #F72A0F;
+}
+
+th.dypo_TableTitle {
+	font-weight: 800;
+	border-right: 1px solid;
+}
+th.dypo_TableTitle:last-child  {
+	border-right: 0;
+}
+tr.dypo_lightRow {
+	background-color: #E1EAEF;
+}
+td input.dypo_textInput {
+	display: none;
+	font-size: 11px;
+	width: 90%;
+}
+th input.dypo_textInput {
+	display: none;
+	font-size: 11px;
+	width: 85%;
+}
+
+textarea.dypo_textarea {
+	display: none;
+	font-size: 11px;
+	height: 50px;
+	width: 100%;
+}
+a.dypo_delete {
+	font-weight: bold;
+	font-size: 12px;
+}
+
+#dypo_envTest {
+	margin-bottom: 10px;
+}
+.dypo_tests {
+    width:600px;
+    float:left;
+}
+.dypo_tests dt {
+    font-weight:bold;
+    display:block;
+    float:left;
+    width:200px;
+    margin:0 10px 4px 0;
+}
+.dypo_tests dd {
+    float:left;
+    margin:0 0 4px 0;
+    padding:0 0 0 20px;
+    background:transparent url(images/icon_error.png) center left no-repeat;
+}
+.dypo_tests dd.dypo_pass {
+    background:transparent url(images/icon_success.png) center left no-repeat;
+}
+.dypo_success {
+    clear:both;
+}
+
+.dypo_editable {
+	border:0px solid black;
+	white-space: nowrap;
+}
+
+
