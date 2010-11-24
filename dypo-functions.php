@@ -26,12 +26,19 @@ function isDyPoAdminPage() {
 
 // save shortcode values from the browser into the database
 // expects a 2-dimensional array, much like is produced in dypo_getValues
-function dypo_saveValues ( $values ) {
-	global $wpdb;
+function dypo_saveValues ( $values, $titles ) {
+	global $wpdb, $dypo_options;
 	if ( !is_array($values) ) { echo('Something went wrong: is not an array.'); return; }
 	$size = count($values);
-	if(DDEBUG) { error_log("dyna:functions:saveValues size=$size"); }
+	$tsize = count($titles);
+	if(DDEBUG) { error_log("dyna:functions:saveValues tsize=$tsize : size=$size"); }
 	if(MDEBUG) { error_log("dyna:functions:saveValues size=$size : values=" . var_export($values,true) . '\n'); }
+	if(DDEBUG) { error_log("dyna:functions:saveValues tsize=$size : titles=" . var_export($titles,true) . '\n'); }
+
+	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $dypo_options[$c] = $titles[$i]; }
+	$dypo_options[DYPO_OPTIONS_REFRESH] = true;
+	update_option( DYPO_OPTIONS, $dypo_options );
+
 	$data = '';
 	foreach ( $values as $ix => $myrow )  {
 		if ( !is_array($myrow) ) { echo("Something went wrong, row $ix is not an array."); return; }
@@ -63,30 +70,39 @@ function dypo_reloadPage() {
 // alternatively dypo_getValues, we can set the values with a csv import.
 // returns an error message if there was one.
 function dypo_parseCSV ( $filename ) {
-	global $wpdb;
+	global $wpdb,$dypo_options;
     ini_set('auto_detect_line_endings', 1);
 	define('COLUMNS',DYPO_NUM_SHORTCODES + 2);	// without id field
 	if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV filename=$filename COLUMNS=" . COLUMNS); }
 	$handle = fopen( $filename, "r");
 	if ($handle !== false) {
+		$dup = false;
+		$dups = array();
 		while (($data = fgetcsv($handle, 3000)) !== FALSE) {
-			if(MDEBUG) { error_log("dyna:functions:dypo_parseCSV data=" . var_export($data,true) . '\n'); }
-			$newShortcodeArray = array();
+			if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV data=" . var_export($data,true) . '\n'); }
 			$numcol = count($data);
 			$filler = COLUMNS - $numcol;
 			$value .= "(id,";
+			$dupkey = $data[0] . $data[1];
+			if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV dupkey=$dupkey"); }
+			if($dups{$dupkey}) { $dup = true; break; }
+			else { $dups{$dupkey} = 1; }
 			foreach ( $data as $field )  { $value .= "'$field',"; }
 			for($i=0;$i < $filler;$i++) { $value .= "'',"; }
 			$value = rtrim($value,',');
 			$value .= "),";
 		}
 		$value = rtrim($value,',');
-		if(MDEBUG) { error_log("dyna:functions: value = $value"); }
+		if(DDEBUG) { error_log("dyna:functions: dup=$dup : value = $value"); }
 		fclose($handle);
+
+		if($dup) { return "Found duplicate name-value pair: $data[0] - $data[1]"; }
 
 		$insert = "insert into " . DYPO_SHORTCODE_TABLE . " values $value";
 		if(MDEBUG) { error_log("dyna:functions:parseCSV insert=$insert"); }
 		$wpdb->query($insert);
+		$dypo_options[DYPO_OPTIONS_REFRESH] = true;
+		update_option( DYPO_OPTIONS, $dypo_options );
 		dypo_reloadPage();
 		return ''; // no error message 
 	} else {

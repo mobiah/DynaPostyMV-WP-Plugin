@@ -24,7 +24,8 @@ define("DYPO_JS_URL", DYPO_URL.'/js');
 global $wpdb;
 define("DYPO_SHORTCODE_TABLE", $wpdb->prefix."dypo_shortcodes");
 define("DYPO_NUM_SHORTCODES", 10);
-define("DYPO_URLVAR_COOKIE", 'dypo_urlvar');
+define("DYPO_COOKIE_NAME", 'dypo_urlname');
+define("DYPO_COOKIE_VAL", 'dypo_urlvar');
 define("DYPO_VERSION", "0.2");
 define("DYPO_REPORTING_ACTION", 'dypo_reporting');
 define("DYPO_REPORTING_FREQ", 'hourly');
@@ -47,6 +48,8 @@ include_once( DYPO_PATH.'/dypo-hooks.php' );
 *	Options stored in wp-options table
 */
 define ('DYPO_OPTIONS', 'dypo_options');
+define ('DYPO_OPTIONS_CODE_PREFIX', 'dypo_code_');
+define ('DYPO_OPTIONS_REFRESH', 'dypo_refresh');
 define ('DYPO_STATS', 'dypo_stats');
 global $dypo_options, $dypo_stats;  // the array which holds all options
 $dypo_options = get_option( DYPO_OPTIONS, array());

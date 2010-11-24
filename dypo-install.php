@@ -44,6 +44,8 @@ function dypo_install() {
 		// record the database version
 		$dypo_dbVersion = "1.0";
 		$dypo_options['dypo_dbVersion'] = $dypo_dbVersion;
+		// initialize shortcodes names to dynacode_ 
+		for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $j=$i+1; $dypo_options[$c] = "dynacode_$j"; }
 		update_option( DYPO_OPTIONS, $dypo_options );
 		
 		// now, dump some values in for the first time, so that the admin page isn't empty when they first go there.

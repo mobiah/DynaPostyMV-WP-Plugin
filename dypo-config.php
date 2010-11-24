@@ -28,11 +28,17 @@ PAGE;
 
 ///////////////////////////////////////////
 function dypo_configDisplay() {
-	global $dypo_envTest, $dypo_setCookie, $dypo_cookieExpire, $dypo_values;
+	global $dypo_envTest, $dypo_setCookie, $dypo_cookieExpire, $dypo_values,$dypo_options;
 
+	if(DDEBUG) { error_log("dypo-config: dypo_options=" . var_export($dypo_options,true) . '\n'); }
+	$finishedSaving = $dypo_options[DYPO_OPTIONS_REFRESH];
+	$dypo_options[DYPO_OPTIONS_REFRESH] = false;
+	update_option( DYPO_OPTIONS, $dypo_options );
 	if ( array_key_exists( 'dypo_csvUpload', $_FILES ) ) { dypo_handleUpload(); }
 	$size = count($dypo_values);
-	if(DDEBUG) { error_log("dypo-config: dypo_values size=$size"); }
+	if(DDEBUG) { error_log("dypo-config: finishedSaving=$finishedSaving : dypo_values size=$size"); }
+	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $scodes .= "$dypo_options[$c] "; }
+	if(DDEBUG) { error_log("dypo-config: scodes = $scodes"); }
 
 ?>
 <div class="wrap">
@@ -70,8 +76,12 @@ function dypo_configDisplay() {
 				<tr class="dypo_editRow" title="<?_e('eg. utm_content');?>">
 					<th class="dypo_TableTitle" > <?_e('URL variable name');?> </th>
 					<th class="dypo_TableTitle" title="<?_e('pick a value');?>"> <?_e('URL variable value');?> </th>
-					<?php for($i=1; $i <= DYPO_NUM_SHORTCODES; $i++) {	?>
-					<th class="dypo_TableTitle" title="<?_e('dynaposty shortcode');?>"> <?_e("dynacode_$i");?> </th>
+					<?php for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { 
+						$tname = $dypo_options[DYPO_OPTIONS_CODE_PREFIX . $i];
+					?>
+						<th class="dypo_editable dypo_TableTitle" title="<?_e('dynaposty shortcode');?>">
+						<span id="dypo_title_val_<?=$i?>"><?_e($tname);?></span>
+						<input class="dypo_textInput" type="text" id="dypo_title_edit_<?=$i?>" value="<?_e($tname);?>" />
 					<?php } ?>
 				</tr>
 				</thead>
@@ -127,35 +137,50 @@ function dypo_configDisplay() {
 				</td>
 			</tr>
 			<tr>
-				<th scope="row">
-					<input type="submit" id="dypo_saveAll" name="dypo_saveAll" class="button-primary dypo_saveAll" value="Save All Settings" />
-				</th>
+				<th scope="row"><input type="submit" id="dypo_saveAll" name="dypo_saveAll" class="button-primary dypo_saveAll" value="Save All Settings" /></th>
+				<th scope="row"></th>
+				<th scope="row"></th>
+				<th scope="row" title="ALERT: Delete all rows"><input type="submit" id="dypo_deleteAll" name="dypo_deleteAll" class="dypo_deleteAll" value="Delete All" /></th>
 			</table>
 			<script type="text/javascript">
 			//<![CDATA[
 				// save all settings on this page.
 				jQuery(document).ready( function(){ 
 					// make cells editable when clicked. and give them a title which says that they are editable
-					console.debug("dypo-config: jQuery ready"); 
 					jQuery('.dypo_editable').attr('title','click to edit').click( function () { dypo_editCell(this); });
+
+					<?php if($finishedSaving) { ?>
+						var mess = 'Shortcodes saved.<br>';
+						if(dypo_multiName('dypo_edit_')) {
+							console.debug("dypo-config: found multiName");
+							mess = mess + '<b>ALERT:</b> Multiple URL variable names defined, therefore potentially multiple shortcode mappings. See Help for more info.';
+						}
+						dypo_showMessage(mess,'dypo_contentMessage', false, true);
+					<?php } ?>
 
 					// set the function which confirms when the user leaves the page without saving
 					window.onbeforeunload = dypo_contentOnUnload;
 
 					// set the function which saves all the data
 					jQuery('.dypo_saveAll').click( function () {
-						console.debug("dypo-config: jQuery dypo_saveAll");
+						//console.debug("dypo-config: jQuery dypo_saveAll");
 						dypo_sanitizeInput( 'dypo_mainSettings', 'dypo_noSpaces' );
 						// check for duplicate URL variables
 						if (dypo_findDupeURLVars('dypo_edit_')) {
-							dypo_showMessage( "<?_e('Duplicate URL variables detected, which is not allowed.  Settings NOT saved.');?>", 'dypo_contentMessage', false, true);
+							var dup = dypo_getDup();
+							//console.debug("dypo-config: found dup=" + dup);
+							var mess = 'Duplicate URL variables <b>' + dup + '</b> detected, which is not allowed.  Settings NOT saved.';
+							dypo_showMessage(mess,'dypo_saveMessage', false, true);
+							//dypo_showMessage( "<?_e('Duplicate URL variables detected, which is not allowed.  Settings NOT saved.');?>", 'dypo_contentMessage', false, true);
 							return;
 						}
+						
 
 						// reset all the open editable cells back to not being edited.
 						dypo_resetEdits('dypo_editable', 'dypo_strong');
 
 						var values = dypo_buildValues('dypo_edit_');
+						var titles = dypo_buildTitles('dypo_title_edit_');
 						//console.debug("dypo-config: dypo_saveAll values="); console.dir(values);
 
 						// send the info off our dypo-admin:dypo_saveOptions via wordpress ajax.
@@ -164,6 +189,7 @@ function dypo_configDisplay() {
 										"dypo_setCookie" : jQuery('#dypo_setCookie').get(0).checked.toString(),
 										"dypo_cookieExpire" : jQuery('#dypo_cookieExpire').val(),
 										"dypo_values" : jQuery.toJSON(values),
+										"dypo_titles" : jQuery.toJSON(titles),
 									},
 									'dypo_contentMessage',
 									'dypo_contentLoading',
@@ -172,9 +198,16 @@ function dypo_configDisplay() {
 						dypo_unsavedEdits = false; // no unsaved edits - no need to ask the user about leaving.
 
 					} );
+
+					jQuery('.dypo_deleteAll').click( function () {
+						console.debug("dypo-config: jQuery dypo_deleteAll");
+						dypo_ajax(ajaxurl, { "action" : 'dypo_deleteAll', }, 'dypo_contentMessage', 'dypo_contentLoading', false);
+					} );
+
 				} );
 			//]]></script>
 		</div> <!-- end dypo_mainSettings -->
+		<div id="dypo_saveMessage" class="dypo_message" style="margin-top:20px;display:none;"></div>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
@@ -195,7 +228,7 @@ function dypo_handleUpload() {
 			// okay, no error, let's try to parse this csv.  this is where the work is done.
 			$parseResult = dypo_parseCSV( $_FILES['dypo_csvUpload']['tmp_name']); // pass in the tmp file name
 			if ( $parseResult != '' ) {
-				$fileMessage = __('We were unable to properly parse your CSV file.  Error: '.$parseResult);
+				$fileMessage = __('We were unable to properly parse your CSV file.<br><b>Error:</b> '.$parseResult);
 				$fileError = true;
 			} 
 			else { $fileMessage = __('Here are the results of your upload. If you do not \"Save all Settings\", these values will not be saved.'); }

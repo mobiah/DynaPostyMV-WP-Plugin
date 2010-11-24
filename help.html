@@ -6,7 +6,8 @@ Dynaposty makes it easy to generate <b>dynamic landing pages.</b> <p>Dynaposty l
 <li><b>Configure shortcodes:</b> On the Dynaposty setup page, type in a URL name, a URL value, and at least 1 shortcode.
 <li><b>Add shortcodes to your pages:</b> Click the Pages or Posts editor (to the left). Click the dynamite icon. Select and add a shortcode.
 <li>More help: Send email to: <a href="mailto:support@dynaposty.com">support@dynaposty.com</a>
-<h3>Example</h3>
+
+<h3>Simple Example</h3>
 <li>Your Dynaposty configuration:<br> 
 <div style="margin:10px;float:left;">
 <table cellpadding=10 cellspacing=10 style="border:1px solid gray;"> 
@@ -28,9 +29,29 @@ Dynaposty makes it easy to generate <b>dynamic landing pages.</b> <p>Dynaposty l
 </div>
 <div style="clear:left;"></div>
 <li>One of your pages says: <span style="color:#2a2;">Limited offer: <b>[dynacode_1]</b> discount today!</span>
-<li><b>Visitor 1</b> comes in at: <b>http://yoursite.com</b> and sees: <span style="color:#2a2;">Limited offer: <b>10%</b> discount today!</span> <span style="color:#c22;">[ no URL value: using default ]</span>
+<li><b>Visitor 1</b> comes in at: <b>http://yoursite.com</b> and sees: <span style="color:#2a2;">Limited offer: <b>10%</b> discount today!</span> <span>[ no URL value: using default ]</span>
 <li><b>Visitor 2</b> comes in at: <b>http://yoursite.com?utm_content=abc</b> and sees: <span style="color:#2a2;">Limited offer: <b>20%</b> discount today!</span>
-<p>
+<p>&nbsp;<p>
+<h3>Multiple URL Variable Name Example</h3>
+With one URL variable name and a unique variable value (enforced), no conflicts are possible when Dynaposty looks up your shortcode definitions.
+However, when defining multiple URL variable names, then the shortcode lookup operation could find 2 or more matching rows. If that is the case, Dynaposty picks <b>the last matching row</b> going from top to bottom in your table.<br><br>
+<li>Your Dynaposty configuration:<br> 
+<div style="margin:10px;">
+<table cellpadding=10 cellspacing=10 style="border:1px solid gray;"> 
+<thead>
+<tr style="background-color:#ddd;"><th>URL name</th><th>URL value</th><th>dynacode_1</th></tr>
+</thead>
+<tr><td>utm_content</td><td>abc</td><td>10%</td></tr>
+<tr><td>utm_month</td><td>jan</td><td>20%</td></tr>
+<tr><td>utm_month</td><td>feb</td><td>25%</td></tr>
+</table>
+</div>
+<li>One of your pages says: <span style="color:#2a2;">Limited offer: <b>[dynacode_1]</b> discount</span>
+<li><b>Visitor 1</b> comes in at: <b>http://yoursite.com</b> and sees: <span style="color:#2a2;">Limited offer: <b>10%</b> discount </span> <span>[ no URL value: using default ]</span>
+<li><b>Visitor 2</b> comes in at: <b>http://yoursite.com?utm_content=abc</b> and sees: <span style="color:#2a2;">Limited offer: <b>10%</b> discount </span>
+<li><b>Visitor 3</b> comes in at: <b>http://yoursite.com?utm_content=abc&utm_month=feb</b> and sees: <span style="color:#2a2;">Limited offer: <b>25%</b> discount </span><span>[ these params match row 1 and row 3, however the last matching row was applied (row 3) due to our priority rule</span> 
+<p>&nbsp;<p>
+
 <h3>FAQ</h3>
 <li>Q: What happens if the user doesn't have a cookie or url variable but gets to a page with DynaPosty shortcodes?
 <li>A: DynaPosty requires that you establish default values for each shortcode that you create. That way, if any user doesn't have a cookie or url variable, they will still see content that makes sense and is complete. You should use the first row to define default values for those users.
@@ -41,3 +62,4 @@ Dynaposty makes it easy to generate <b>dynamic landing pages.</b> <p>Dynaposty l
 <li>Q: Why is the first row blue?
 <li>A: The first row contains default values which will be used when DynaPosty can't find the URL value, or if there is no URL value.
 </div>
+

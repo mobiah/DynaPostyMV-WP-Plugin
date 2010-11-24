@@ -16,6 +16,7 @@ function dypo_contentOnUnload () {
 // when a user clicks on a table cell, we assume they want to edit it.
 // hide the span in the td, and show the editable form field
 function dypo_editCell ( cell ) {
+	if(DDEBUG) { console.debug('dypo_editCell cell=' + cell.id); }
 	jQuery(cell).find('span').hide();
 	jQuery(cell).find(':input').show().focus();
 	dypo_unsavedEdits = true;
@@ -105,6 +106,18 @@ function dypo_buildValues ( idPrefix, scPrefix, vsPrefix ) {
 	return valObject;
 }
 		*/
+function dypo_buildTitles ( idPrefix ) {
+	if(DDEBUG) { console.debug('buildTitles idPrefix=' + idPrefix); }
+	valObject = {};
+	var column = 0;
+	jQuery('[id^='+idPrefix+']').each( function () {
+		//if(DDEBUG) { console.debug('buildTitles column=' + column + ' value=' + this.value); }
+		valObject[column] = this.value;
+		column++;
+	} );
+	return valObject;
+}
+
 function dypo_buildValues ( idPrefix ) {
 	if(DDEBUG) { console.debug('buildValues idPrefix=' + idPrefix); }
 	valObject = {};
@@ -112,36 +125,54 @@ function dypo_buildValues ( idPrefix ) {
 		id = this.id;
 		row = id.substring( idPrefix.length, id.indexOf('|') );
 		column = id.substring( id.indexOf('|') + 1 );
-		if(DDEBUG) { console.debug('buildValues id=' + id + ' row=' + row + ' column=' + column + ' value=' + this.value); }
+		//if(DDEBUG) { console.debug('buildValues id=' + id + ' row=' + row + ' column=' + column + ' value=' + this.value); }
 		if ( typeof(valObject[row]) == 'undefined' ) { valObject[row] = {}; } // add row to array if needed.
 		valObject[row][column] = this.value;
 	} );
 	return valObject;
 }
 
-// find duplicate URL variables
-function dypo_findDupeURLVars ( valEditPrefix ) {
+function dypo_multiName() { 
+	if(DDEBUG) { console.debug('multiName'); }
+	var count = 0;
 	varObj = {};
-	foundDupe = false;
-	jQuery(':input[id$=urlvar]').each( function () {
-		if ( this.value in varObj ) { foundDupe = true; }
-		varObj[this.value] = '.';
+	jQuery(':input[id$=urlname]').each( function () {
+		if(this.value in varObj) { }
+		else {
+			count++;
+			varObj[this.value] = '.'; 
+			if(DDEBUG) { console.debug('multiName adding ' + this.value + ' count=' + count); }
+		}
 	} );
-	return foundDupe;
+	if(count > 1) { return true; }
+	return false;
 }
 
-/*
-// find the current maximum shortcode Index in the table
-function dypo_getMaxShortcodeIndex ( scPrefix ) {
-	curMax = 1;
-	jQuery('span[id^='+scPrefix+']').each( function () {
-		id = this.id;
-		shortcodeIndex = Number(id.substring( id.indexOf('|') + 1 ));		
-		curMax = Math.max( curMax, shortcodeIndex );
+// find duplicate URL variables
+var currDup;
+function dypo_getDup() { return currDup; }
+function dypo_findDupeURLVars ( valEditPrefix ) {
+	if(DDEBUG) { console.debug('findDupeURLVars valEditPrefix=' + valEditPrefix); }
+	varObj = {}; names = []; values = [];
+	dup = false;
+	var ix = 0; jQuery(':input[id$=urlname]').each( function () { names[ix] = this.value; ix++; });
+	ix = 0; jQuery(':input[id$=urlvar]').each( function () { values[ix] = this.value; ix++; });
+	for(i=0; i < ix; i++) {
+		var key = names[i] + values[i];		// combo of url name + url value
+		if(DDEBUG) { console.debug('findDupeURLVars key=' + key); }
+		if(key in varObj) { dup = true; currDup = names[i] + ' - ' + values[i]; }
+		varObj[key] = '.';
+	}
+	if(DDEBUG) { console.debug('findDupeURLVars dup=' + dup); }
+	/*
+	jQuery(':input[id$=urlvar]').each( function () {
+		if(this.value in varObj) { dup = true; }
+		if(DDEBUG) { console.debug('findDupeURLVars ix=' + ix + ' currname=' + currname + ' value=' + this.value + ' dup=' + dup); }
+		varObj[this.value] = '.';
 	} );
-	return curMax;
+	*/
+	return dup;
 }
-*/
 
 // find the current maximum valueSet Index in the table
 //function dypo_getMaxValueSetIndex ( vsPrefix ) {

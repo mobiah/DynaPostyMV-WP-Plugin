@@ -27,6 +27,16 @@ function dypo_adminInit () {
 }
 
 // function to call when saving data via ajax.  wordpress hooked.
+add_action('wp_ajax_dypo_deleteAll', 'dypo_deleteAll');
+function dypo_deleteAll() {
+	global $wpdb;
+	if(DDEBUG) { error_log("dyna:admin:dypo_deleteAll"); }
+	$del = "DELETE FROM " . DYPO_SHORTCODE_TABLE;
+	$wpdb->query($del);
+	$wpdb->insert( DYPO_SHORTCODE_TABLE , array( 'urlname' => 'utm_content', 'urlvar'=>'', 'code1'=>'default'));
+	dypo_reloadPage();
+}
+
 add_action('wp_ajax_dypo_saveOptions', 'dypo_saveOptions');
 function dypo_saveOptions() {
 	global $dypo_options, $dypo_values ;
@@ -39,13 +49,13 @@ function dypo_saveOptions() {
 		$dypo_options['dypo_cookieExpire'] = stripslashes($_POST['dypo_cookieExpire']);
 	}
 	if ( array_key_exists( 'dypo_values', $_POST ) ) {
-		dypo_saveValues( dypo_json_decode( stripslashes( $_POST['dypo_values'] ) ) );
+		dypo_saveValues( dypo_json_decode(stripslashes($_POST['dypo_values'])),dypo_json_decode(stripslashes($_POST['dypo_titles'])));
 	}
 
 	if(DDEBUG) { error_log("dyna:admin:dypo_saveOptions dypo_options=" . var_export($dypo_options,true) . "\n"); }
 	update_option( DYPO_OPTIONS, $dypo_options );
 	//_e("Settings and Shortcodes Saved.");
-	_e("<div id='saveMess'>Shortcodes saved.<p> <strong>INFO</strong>: DynaPosty uses the default shortcode values (from row 1 here), if no URL variable name is given or URL variable not found.</div>");
+	//_e("<div id='saveMess'>Shortcodes saved.<p> <strong>INFO</strong>: DynaPosty uses the default shortcode values (from row 1 here), if no URL variable name is given or URL variable not found.</div>");
 	/*
 	if ( $dypo_options['dypo_URLVar'] == '' ) {
 		_e(" <strong>INFO</strong>: DynaPosty uses the default shortcode values (from row 1 here), if no URL variable name is given or URL variable not found.");
