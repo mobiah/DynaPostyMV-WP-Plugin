@@ -2,7 +2,7 @@
 *	Dynaposty Admin Functions 
 */
 
-var DDEBUG = true;
+var DDEBUG = false;
 
 // decides whether to show a confirmation about leaving the page, if the user has changed
 // content settings, and has not saved them.
