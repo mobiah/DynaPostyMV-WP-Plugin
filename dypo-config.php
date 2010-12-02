@@ -103,16 +103,19 @@ function dypo_configDisplay() {
 					</td>
 					<td class="dypo_editable" >
 						<span id="dypo_val_<?=$vsID?>|urlvar"><?=$val?></span>
-						<input class="dypo_textInput dypo_noSpaces" type="text" id="dypo_edit_<?=$vsID?>|urlvar" value="<?=$val?>" />
+						<!-- <input class="dypo_textInput dypo_noSpaces" type="text" id="dypo_edit_<?=$vsID?>|urlvar" value="<?=$val?>" /> -->
+						<input class="dypo_textInput" type="text" id="dypo_edit_<?=$vsID?>|urlvar" value="<?=$val?>" />
 					</td>
 					<?php for($i=1; $i <= DYPO_NUM_SHORTCODES; $i++) {	
 						$mycol = "code$i"; 
-						$mycode = $myrow->$mycol; 
+						$mycode = htmlentities($myrow->$mycol,ENT_COMPAT); 
+						if(MDEBUG) { error_log("dypo-config: mycode=$mycode");  }
 						$myval = "$vsID|$mycol";
 					?>
 					<td class="dypo_editable" >
 						<span id="dypo_val_<?=$myval?>"><?=$mycode?></span>
-						<input class="dypo_textInput dypo_noSpaces" type="text" id="dypo_edit_<?=$myval?>" value="<?=$mycode?>" />
+						<!-- <input class="dypo_textInput dypo_noSpaces" type="text" id="dypo_edit_<?=$myval?>" value="<?=$mycode?>" /> -->
+						<input class="dypo_textInput" type="text" id="dypo_edit_<?=$myval?>" value="<?=$mycode?>" />
 					</td>
 					<?php } ?>
 				</tr>
@@ -145,6 +148,7 @@ function dypo_configDisplay() {
 			<script type="text/javascript">
 			//<![CDATA[
 				// save all settings on this page.
+				var JDEBUG = true;
 				jQuery(document).ready( function(){ 
 					// make cells editable when clicked. and give them a title which says that they are editable
 					jQuery('.dypo_editable').attr('title','click to edit').click( function () { dypo_editCell(this); });
@@ -152,7 +156,7 @@ function dypo_configDisplay() {
 					<?php if($finishedSaving) { ?>
 						var mess = 'Shortcodes saved.<br>';
 						if(dypo_multiName('dypo_edit_')) {
-							console.debug("dypo-config: found multiName");
+							if(JDEBUG) { console.debug("dypo-config: found multiName"); }
 							mess = mess + '<b>ALERT:</b> Multiple URL variable names defined, therefore potentially multiple shortcode mappings. See Help for more info.';
 						}
 						dypo_showMessage(mess,'dypo_contentMessage', false, true);
@@ -164,7 +168,7 @@ function dypo_configDisplay() {
 					// set the function which saves all the data
 					jQuery('.dypo_saveAll').click( function () {
 						//console.debug("dypo-config: jQuery dypo_saveAll");
-						dypo_sanitizeInput( 'dypo_mainSettings', 'dypo_noSpaces' );
+						//dypo_sanitizeInput( 'dypo_mainSettings', 'dypo_noSpaces' );
 						// check for duplicate URL variables
 						if (dypo_findDupeURLVars('dypo_edit_')) {
 							var dup = dypo_getDup();
@@ -200,7 +204,7 @@ function dypo_configDisplay() {
 					} );
 
 					jQuery('.dypo_deleteAll').click( function () {
-						console.debug("dypo-config: jQuery dypo_deleteAll");
+						if(JDEBUG) { console.debug("dypo-config: jQuery dypo_deleteAll"); }
 						dypo_ajax(ajaxurl, { "action" : 'dypo_deleteAll', }, 'dypo_contentMessage', 'dypo_contentLoading', false);
 					} );
 

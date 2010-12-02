@@ -108,7 +108,11 @@ function dypo_init ( $atts=null, $content=null ) {
 	for ($i=0; $i < DYPO_NUM_SHORTCODES; $i++) {
 		$shortcode = $shortcodes[$i];
 		$field = $dbnames[$i];
-		$fun = ' return "' . $row->$field . '";';
+		// must html encode single/double quotes here (since we allow quotes)
+		// must not htmlentities encode, because we want any html code executed
+		$rf = preg_replace('/\"/','&quot;',$row->$field);
+		$rf = preg_replace('/\'/','&#39;',$rf);
+		$fun = ' return "' . $rf . '";';
 		if(MDEBUG) { error_log("dypohooks dypo_init shortcode:$shortcode: fun=$fun"); }
 		$newFunc = create_function('',$fun); //create a lambda-style function which returns the value.
 		if(DDEBUG && $newFunc()) { error_log("dypohooks dypo_init shortcode=$shortcode field=$field output=" . $newFunc()); }
@@ -135,9 +139,9 @@ function dypo_mediaButtonIcon () {
 // created by dypo_mediaButtonIcon code above.
 function dypo_shortcodeInserter() {
 	if(DDEBUG) { error_log("dypohooks dypo_shortcodeInserter"); }
-	//global $dypo_shortcodes;
+	global $dypo_options;
 	$dypo_shortcodes = array();
-	for($i=1; $i <= DYPO_NUM_SHORTCODES; $i++) { $dypo_shortcodes[] = "dynacode_$i"; }
+	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $dypo_shortcodes[]= $dypo_options[$c]; }
 ?>
 	<div id="dypo_selectShortcode" style="display:none; height: 300px; width:300px;">
 		<h3>Insert a DynaPosty Shortcode:</h3>

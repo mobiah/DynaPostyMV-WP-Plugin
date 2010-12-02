@@ -69,43 +69,6 @@ function dypo_buildShortcodes ( scnPrefix, scPrefix ) {
 	return scObject;
 }
 
-		/*
-// build a list of setnames from the table in the page
-function dypo_buildValueSets ( vsPrefix ) {
-	if(DDEBUG) { console.debug('buildValueSets vsPrefix=' + vsPrefix); }
-	vsObject = {};
-	counter = 1;
-	jQuery('[id^='+vsPrefix+']').each( function () {
-		vsObject[counter] = this.value;
-		counter++;
-	} );
-	if(DDEBUG) { console.dir(vsObject); }
-	return vsObject;
-}
-
-// build a 2-dimensional array of all the shortcode values that have been entered.
-function dypo_buildValues ( idPrefix, scPrefix, vsPrefix ) {
-	if(DDEBUG) { console.debug('buildValues idPrefix=' + idPrefix + ' scPrefix=' + scPrefix); }
-	valObject = {};
-	jQuery('[id^='+idPrefix+']').each( function () {
-		id = this.id;
-		valSet = id.substring( idPrefix.length, id.indexOf('|') );
-		if(DDEBUG) { console.debug('buildValues id=' + id + ' valSet=' + valSet); }
-		shortcodeIndex = id.substring( id.indexOf('|') + 1 );
-		shortcode = jQuery( '#'+scPrefix+'\\|'+shortcodeIndex ).val();
-		if ( typeof(shortcode) == 'undefined' ) { shortcode = shortcodeIndex; }
-		if(DDEBUG) { console.debug('buildValues shortcodeIndex=' + shortcodeIndex + ' shortcode=' + shortcode); }
-		newValue = this.value;
-		if(DDEBUG) { console.debug('buildValues valSet=' + valSet + ' value=' + this.value); }
-		
-			// the sub-array doesn't exist, let's make it.
-		if ( typeof(valObject[valSet]) == 'undefined' ) { valObject[valSet] = {}; }
-		valObject[valSet][shortcode] = newValue;
-	} );
-	if(DDEBUG) { console.dir(valObject); }
-	return valObject;
-}
-		*/
 function dypo_buildTitles ( idPrefix ) {
 	if(DDEBUG) { console.debug('buildTitles idPrefix=' + idPrefix); }
 	valObject = {};
@@ -125,7 +88,7 @@ function dypo_buildValues ( idPrefix ) {
 		id = this.id;
 		row = id.substring( idPrefix.length, id.indexOf('|') );
 		column = id.substring( id.indexOf('|') + 1 );
-		//if(DDEBUG) { console.debug('buildValues id=' + id + ' row=' + row + ' column=' + column + ' value=' + this.value); }
+		if(DDEBUG) { console.debug('buildValues id=' + id + ' row=' + row + ' column=' + column + ' value=' + this.value); }
 		if ( typeof(valObject[row]) == 'undefined' ) { valObject[row] = {}; } // add row to array if needed.
 		valObject[row][column] = this.value;
 	} );
@@ -164,13 +127,6 @@ function dypo_findDupeURLVars ( valEditPrefix ) {
 		varObj[key] = '.';
 	}
 	if(DDEBUG) { console.debug('findDupeURLVars dup=' + dup); }
-	/*
-	jQuery(':input[id$=urlvar]').each( function () {
-		if(this.value in varObj) { dup = true; }
-		if(DDEBUG) { console.debug('findDupeURLVars ix=' + ix + ' currname=' + currname + ' value=' + this.value + ' dup=' + dup); }
-		varObj[this.value] = '.';
-	} );
-	*/
 	return dup;
 }
 
@@ -203,6 +159,7 @@ function dypo_getMaxValueSetIndex ( valPrefix ) {
 // this function gets rid of anything we decide we don't want.  
 // basically, anything in a text input and not in a textarea
 function dypo_sanitizeInput( divID, noSpaceClass ) {
+	if(DDEBUG) { console.debug('sanitizeInput divID=' + divID + ' class=' + noSpaceClass); }
 	jQuery('#'+divID+' :text').each( function () {
 		if ( jQuery(this).hasClass(noSpaceClass) ) {
 			this.value = this.value.replace(/[^a-zA-Z0-9\-\_]+/g,'');
@@ -259,64 +216,12 @@ function dypo_newValueSetRow ( valPrefix, valEditPrefix, rowClassPrefix ) {
 	catch(ex) { if(DDEBUG) { console.debug('newValueSetRow ex=' + ex); } }
 }
 
-// creates a new column (shortcode) at the right of each row that is editable
-// once again, with dummy values and properly set ids
-
-/*
-function dypo_newShortcodeCol( scNamePrefix, scPrefix, columnClassPrefix ) {
-	curMaxShortcode = dypo_getMaxShortcodeIndex( scPrefix );
-	newSCIndex = String(Number(curMaxShortcode)+1);
-
-	jQuery('#dypo_shortcodeSettings .dypo_editable:last-child').each( function () {
-		// create the new element - with event handlers
-		newCell = jQuery(this).clone(true).insertAfter(jQuery(this));
-		oldSpanID = newCell.find('span').attr('id');
-		oldInputID = newCell.find(':input').attr('id');
-		if ( oldSpanID.indexOf(scNamePrefix) != -1 ) {
-			// shortcode Name
-			newVal = 'Shortcode Name';
-		} else if ( oldSpanID.indexOf(scPrefix) != -1 ) {
-			// shortcode
-			newVal = 'shortcode'+newSCIndex;
-		} else {
-			// shortcode value
-			newVal = 'value';
-		}
-		newSpanID = oldSpanID.replace('|'+String(curMaxShortcode),'|'+newSCIndex);
-		newInputID = oldInputID.replace('|'+String(curMaxShortcode),'|'+newSCIndex);
-		
-		// update the new values and ids
-		newCell.find('span').html(newVal).attr('id',newSpanID);
-		newCell.find(':input').val(newVal).attr('id',newInputID);
-		
-		// and give it the right class to represent its column number
-		newCell.removeClass(columnClassPrefix+curMaxShortcode).addClass(columnClassPrefix+newSCIndex);
-	} );
-	
-	dypo_unsavedEdits = true; // make sure they confirm before exiting
-}
-*/
 
 // deleting rows (value sets)  easy, because we just delete a row.
 function dypo_delValSet( domObj ) {
 	// remove the row containing the object that was clicked
 	jQuery(domObj).parent().parent().remove();
 }
-/*
-// deleting columns (shortcodes) harder, because we have to delete separate things
-function dypo_delShortcode( domObj, columnClassPrefix ) {
-	// get the classes from the parent cell
-	classes = jQuery(domObj).parent().attr('class');
-	// now, get the class which represents the column number
-	colIndexClass = classes.substring(classes.indexOf(columnClassPrefix));
-	if (colIndexClass.indexOf(' ') != -1) {
-		// remove trailing spaces, and anything that comes after spaces.
-		colIndexClass = colIndexClass.substring(0,colIndexClass.indexOf(' '));
-	}
-	// zzzzzzaap!
-	jQuery('.'+colIndexClass).remove();
-}
-*/
 
 // show a message to the user on the main admin/config page, then fade it out.
 // give it a message and a div to dump the message into

@@ -49,10 +49,13 @@ function dypo_saveOptions() {
 		$dypo_options['dypo_cookieExpire'] = stripslashes($_POST['dypo_cookieExpire']);
 	}
 	if ( array_key_exists( 'dypo_values', $_POST ) ) {
-		dypo_saveValues( dypo_json_decode(stripslashes($_POST['dypo_values'])),dypo_json_decode(stripslashes($_POST['dypo_titles'])));
+		$myvalues = json_decode(stripslashes($_POST['dypo_values']));
+		if(MDEBUG) { error_log("dyna:admin:dypo_saveOptions myvalues=" . var_export($myvalues,true) . '\n'); }
+		dypo_saveValues( json_decode(stripslashes($_POST['dypo_values'])),json_decode(stripslashes($_POST['dypo_titles'])));
+		//dypo_saveValues( dypo_json_decode(stripslashes($_POST['dypo_values'])),dypo_json_decode(stripslashes($_POST['dypo_titles'])));
 	}
 
-	if(DDEBUG) { error_log("dyna:admin:dypo_saveOptions dypo_options=" . var_export($dypo_options,true) . "\n"); }
+	//if(DDEBUG) { error_log("dyna:admin:dypo_saveOptions dypo_options=" . var_export($dypo_options,true) . "\n"); }
 	update_option( DYPO_OPTIONS, $dypo_options );
 	//_e("Settings and Shortcodes Saved.");
 	//_e("<div id='saveMess'>Shortcodes saved.<p> <strong>INFO</strong>: DynaPosty uses the default shortcode values (from row 1 here), if no URL variable name is given or URL variable not found.</div>");

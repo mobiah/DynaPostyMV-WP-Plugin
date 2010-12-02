@@ -25,30 +25,33 @@ function isDyPoAdminPage() {
 
 
 // save shortcode values from the browser into the database
-// expects a 2-dimensional array, much like is produced in dypo_getValues
 function dypo_saveValues ( $values, $titles ) {
 	global $wpdb, $dypo_options;
-	if ( !is_array($values) ) { echo('Something went wrong: is not an array.'); return; }
 	$size = count($values);
 	$tsize = count($titles);
 	if(DDEBUG) { error_log("dyna:functions:saveValues tsize=$tsize : size=$size"); }
-	if(MDEBUG) { error_log("dyna:functions:saveValues size=$size : values=" . var_export($values,true) . '\n'); }
-	if(DDEBUG) { error_log("dyna:functions:saveValues tsize=$size : titles=" . var_export($titles,true) . '\n'); }
+	if(MDEBUG) { error_log("dyna:functions:saveValues tsize=$tsize : size=$size : values=" . var_export($values,true) . '\n'); }
+	if(MDEBUG) { error_log("dyna:functions:saveValues tsize=$size : titles=" . var_export($titles,true) . '\n'); }
 
-	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $dypo_options[$c] = $titles[$i]; }
+	foreach ( $titles as $t )  { $atitles[] = $t; }		// convert stdClass to one-dim array
+	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $dypo_options[$c] = $atitles[$i]; }
 	$dypo_options[DYPO_OPTIONS_REFRESH] = true;
 	update_option( DYPO_OPTIONS, $dypo_options );
 
 	$data = '';
-	foreach ( $values as $ix => $myrow )  {
-		if ( !is_array($myrow) ) { echo("Something went wrong, row $ix is not an array."); return; }
-		$data .= "(id,'$myrow[urlname]','$myrow[urlvar]'";
-		for($i=1; $i <= DYPO_NUM_SHORTCODES; $i++) { $c = "code$i"; $data .= ",'$myrow[$c]'"; }
+	foreach ( $values as $myrow )  {
+		if(MDEBUG) { error_log("dyna:functions:saveValues : myrow=" . var_export($myrow,true) . '\n'); }
+		$data .= "(id";
+		foreach ($myrow as $key => $val )  {
+			if(MDEBUG && !empty($val)) { error_log("dyna:functions:saveValues : key=$key : val=$val"); }
+			$d = addslashes($val);
+			$data .= ",'$d'";
+		}
 		$data .= "),";
 	}
 	$data = rtrim($data,',');
 	$insert = "insert into " . DYPO_SHORTCODE_TABLE . " values $data";
-	if(MDEBUG) { error_log("dyna:functions:saveValues insert=$insert"); }
+	if(DDEBUG) { error_log("dyna:functions:saveValues insert=$insert"); }
 	$del = "DELETE FROM " . DYPO_SHORTCODE_TABLE;
 	$wpdb->query($del);
 	$wpdb->query($insert);
@@ -67,8 +70,6 @@ function dypo_reloadPage() {
 }
 
 
-// alternatively dypo_getValues, we can set the values with a csv import.
-// returns an error message if there was one.
 function dypo_parseCSV ( $filename ) {
 	global $wpdb,$dypo_options;
     ini_set('auto_detect_line_endings', 1);
