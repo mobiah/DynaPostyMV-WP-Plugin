@@ -17,7 +17,6 @@ function dypo_ajaxTest() { echo "true"; die(); }
 add_action('wp_ajax_dypo_envTestSuccess', 'dypo_envTestSuccess');
 function dypo_envTestSuccess() {
 	global $dypo_envTest, $dypo_options;
-	if(DDEBUG) { error_log("dypohooks dypo_envTestSuccess"); }
 	$dypo_envTest = 'success';
 	$dypo_options['dypo_envTest'] = 'success';
 	update_option( DYPO_OPTIONS, $dypo_options );

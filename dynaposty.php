@@ -50,6 +50,7 @@ include_once( DYPO_PATH.'/dypo-hooks.php' );
 define ('DYPO_OPTIONS', 'dypo_options');
 define ('DYPO_OPTIONS_CODE_PREFIX', 'dypo_code_');
 define ('DYPO_OPTIONS_REFRESH', 'dypo_refresh');
+define ('DYPO_OPTIONS_RETEST', 'dypo_retest');
 define ('DYPO_STATS', 'dypo_stats');
 global $dypo_options, $dypo_stats;  // the array which holds all options
 $dypo_options = get_option( DYPO_OPTIONS, array());

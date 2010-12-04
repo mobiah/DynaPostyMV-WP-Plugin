@@ -38,14 +38,35 @@ function dypo_configDisplay() {
 	$size = count($dypo_values);
 	if(DDEBUG) { error_log("dypo-config: finishedSaving=$finishedSaving : dypo_values size=$size"); }
 	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $scodes .= "$dypo_options[$c] "; }
-	if(DDEBUG) { error_log("dypo-config: scodes = $scodes"); }
+	if(DDEBUG) { error_log("dypo-config: scodes = $scodes envTest=" . $_GET['dypo_doEnvTest']); }
+	if ($_GET['dypo_doEnvTest']=='true') {
+		// set dypo_options RETEST and reload this page without the GET param
+		$rf = $_SERVER['HTTP_REFERER'];
+		$rf = preg_replace('/&dypo_doEnvTest=true/','',$rf);
+		if(DDEBUG) { error_log("dypohooks request to run test again rf=$rf"); }
+		$dypo_options[DYPO_OPTIONS_RETEST] = true;
+		update_option( DYPO_OPTIONS, $dypo_options );
+		?>
+		<script type="text/javascript"> 
+		top.location.href='http://localhost/wordpress/wp-admin/admin.php?page=dypo_config';
+		</script>
+		<?php
+		return;
+	}
+
+	$testagain = $dypo_options[DYPO_OPTIONS_RETEST];
+	if(DDEBUG) { error_log("dypohooks testagain=$testagain"); }
+	if($testagain) {
+		$dypo_options[DYPO_OPTIONS_RETEST] = false;
+		update_option( DYPO_OPTIONS, $dypo_options );
+	}
 
 ?>
 <div class="wrap">
 	<div class="icon32" style="background:url('<?=DYPO_IMG_URL?>/icon_dynamite_40x35.png') no-repeat transparent;"><br/></div>
 	<h2 style="clear:none;"><?_e("DynaPosty Settings");?></h2> 
 	<div id="dypo_optionsContainer">
-		<? if ($dypo_envTest == '' || $_GET['dypo_doEnvTest']=='true') {
+		<? if ($dypo_envTest == '' || $testagain) {
 			dypo_envTester();
 			add_action('admin_footer','dypo_congrats');
 		} ?>
@@ -53,7 +74,7 @@ function dypo_configDisplay() {
 			<div id="dypo_contentLoading" style="display:none;"><img alt="" id="ajax-loading" src="images/wpspin_light.gif"/></div>
 			<div id="dypo_contentMessage" class="dypo_message <?=($dypo_envTest == 'failure' ? 'dypo_error_message' : '')?>" <?=($dypo_envTest == 'failure' ? '' : 'style="display:none;"')?> ><?=($dypo_envTest == 'failure' ? __('Warning - your server configuration may prevent the normal function of DynaPosty.').'(<a href="'.$_SERVER["REQUEST_URI"].'&dypo_doEnvTest=true">'.__('Click to test again').'</a>)' : '&nbsp;')?></div>
 		</div>
-		<div id="dypo_mainSettings">
+		<div id="dypo_mainSettings" style="border:0px solid blue;">
 			<table class="form-table">
 			<tr>
 				<th scope="row"> <label for="dypo_setCookie"> <?_e('Save shortcode in a cookie');?>?  </label> </th>
@@ -142,13 +163,18 @@ function dypo_configDisplay() {
 			<tr>
 				<th scope="row"><input type="submit" id="dypo_saveAll" name="dypo_saveAll" class="button-primary dypo_saveAll" value="Save All Settings" /></th>
 				<th scope="row"></th>
-				<th scope="row"></th>
 				<th scope="row" title="ALERT: Delete all rows"><input type="submit" id="dypo_deleteAll" name="dypo_deleteAll" class="dypo_deleteAll" value="Delete All" /></th>
+			</tr>
+			<tr>
+				<td colspan=3>
+				<div id="dypo_saveMessage" class="dypo_message" style="display:none;"></div>
+				</td>
+			</tr>
 			</table>
 			<script type="text/javascript">
 			//<![CDATA[
 				// save all settings on this page.
-				var JDEBUG = true;
+				var JDEBUG = false;
 				jQuery(document).ready( function(){ 
 					// make cells editable when clicked. and give them a title which says that they are editable
 					jQuery('.dypo_editable').attr('title','click to edit').click( function () { dypo_editCell(this); });
@@ -211,7 +237,6 @@ function dypo_configDisplay() {
 				} );
 			//]]></script>
 		</div> <!-- end dypo_mainSettings -->
-		<div id="dypo_saveMessage" class="dypo_message" style="margin-top:20px;display:none;"></div>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>
 		<p>&nbsp;</p>

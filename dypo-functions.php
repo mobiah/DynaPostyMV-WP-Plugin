@@ -82,6 +82,8 @@ function dypo_parseCSV ( $filename ) {
 		while (($data = fgetcsv($handle, 3000)) !== FALSE) {
 			if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV data=" . var_export($data,true) . '\n'); }
 			$numcol = count($data);
+			if(MDEBUG) { error_log("dyna:functions:dypo_parseCSV numcol=$numcol data[0]=$data[0]"); }
+			if($numcol < 3 || empty($data[0])) { continue; }
 			$filler = COLUMNS - $numcol;
 			$value .= "(id,";
 			$dupkey = $data[0] . $data[1];
