@@ -94,7 +94,7 @@ function dypo_init ( $atts=null, $content=null ) {
 
 	/* create a shortcode function for ALL shortcodes, doesn't matter if we have a urlValue or not */
 
-	if(DDEBUG) { error_log("dypohooks dypo_init using index $ix"); }
+	if(MDEBUG) { error_log("dypohooks dypo_init using index $ix"); }
 	$shortcodes = array();
 	$dbnames = array();
 	for($i=0; $i < DYPO_NUM_SHORTCODES; $i++) { $c = DYPO_OPTIONS_CODE_PREFIX . $i; $shortcodes[]= $dypo_options[$c]; $j=$i+1; $dbnames[] = "code$j"; }
@@ -107,14 +107,13 @@ function dypo_init ( $atts=null, $content=null ) {
 	for ($i=0; $i < DYPO_NUM_SHORTCODES; $i++) {
 		$shortcode = $shortcodes[$i];
 		$field = $dbnames[$i];
-		// must html encode single/double quotes here (since we allow quotes)
-		// must not htmlentities encode, because we want any html code executed
-		$rf = preg_replace('/\"/','&quot;',$row->$field);
-		$rf = preg_replace('/\'/','&#39;',$rf);
+		// must escape double quotes here, because lambda func below is wrapped in quotes
+		$rf = preg_replace('/\"/','\\"',$row->$field);
+		//$rf = preg_replace('/\'/','&#39;',$rf);
 		$fun = ' return "' . $rf . '";';
 		if(MDEBUG) { error_log("dypohooks dypo_init shortcode:$shortcode: fun=$fun"); }
 		$newFunc = create_function('',$fun); //create a lambda-style function which returns the value.
-		if(DDEBUG && $newFunc()) { error_log("dypohooks dypo_init shortcode=$shortcode field=$field output=" . $newFunc()); }
+		if(MDEBUG && $newFunc()) { error_log("dypohooks dypo_init shortcode=$shortcode field=$field output=" . $newFunc()); }
 		add_shortcode( $shortcode, $newFunc);
 	}
 

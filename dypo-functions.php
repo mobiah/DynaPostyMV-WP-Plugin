@@ -82,7 +82,7 @@ function dypo_parseCSV ( $filename ) {
 		while (($data = fgetcsv($handle, 3000)) !== FALSE) {
 			if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV data=" . var_export($data,true) . '\n'); }
 			$numcol = count($data);
-			if(MDEBUG) { error_log("dyna:functions:dypo_parseCSV numcol=$numcol data[0]=$data[0]"); }
+			if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV numcol=$numcol data[0]=$data[0]"); }
 			if($numcol < 3 || empty($data[0])) { continue; }
 			$filler = COLUMNS - $numcol;
 			$value .= "(id,";
@@ -90,7 +90,7 @@ function dypo_parseCSV ( $filename ) {
 			if(DDEBUG) { error_log("dyna:functions:dypo_parseCSV dupkey=$dupkey"); }
 			if($dups{$dupkey}) { $dup = true; break; }
 			else { $dups{$dupkey} = 1; }
-			foreach ( $data as $field )  { $value .= "'$field',"; }
+			foreach ( $data as $field )  { $field = addslashes($field); $value .= "'$field',"; }
 			for($i=0;$i < $filler;$i++) { $value .= "'',"; }
 			$value = rtrim($value,',');
 			$value .= "),";
@@ -102,7 +102,7 @@ function dypo_parseCSV ( $filename ) {
 		if($dup) { return "Found duplicate name-value pair: $data[0] - $data[1]"; }
 
 		$insert = "insert into " . DYPO_SHORTCODE_TABLE . " values $value";
-		if(MDEBUG) { error_log("dyna:functions:parseCSV insert=$insert"); }
+		if(DDEBUG) { error_log("dyna:functions:parseCSV insert=$insert"); }
 		$wpdb->query($insert);
 		$dypo_options[DYPO_OPTIONS_REFRESH] = true;
 		update_option( DYPO_OPTIONS, $dypo_options );
