@@ -1,4 +1,4 @@
-=== Dynamic Landing Pages made easy - DynaPosty ===
+=== Dynaposty Dynamic Landing Pages ===
 
 Contributors: Mobiah
 Tags: dynamic, dynamic content, ppc tools, dynamic targeting, landing pages, dynamic landers, shortcodes, mobiah
@@ -64,7 +64,7 @@ A: This depends on your traffic sources. Google AdWords, for example, has some d
 
 Q: What are the limits of use?
 
-A: Right now, there are no limits of use. There may be a day when we charge for especially heavy usage or multiple variable support or something like that, but not now.
+A: Right now, there are no limits of use. There may be a day when we charge for especially heavy usage or something like that, but not now.
 
 Q: What happens if the user doesn't have a cookie or url variable but gets to a page with DynaPosty shortcodes?
 
@@ -74,9 +74,9 @@ Q: I see a grid of text.  What do I do?
 
 A: Any field you see in the grid which is not bold, is editable.  Just click it to edit.
 
-Q: Why are some of the rows blue?
+Q: Why is the first row blue?
 
-A: The blue rows are special.  The "shortcode" row contains all the shortcodes you will use in your Post/Page content.  If the shortcode in this row is "location", then in your Posts/Pages, you would enter [location].  But don't worry.  There will be a dynaposty button which helps you insert the codes automatically.  The "Default Values" row is what will will be replaced when DynaPosty doesn't recognize the URL Variable Value, or the URL Variable just isn't in the URL at all.
+A: The blue row is the Default row. The "Default Values" row is what will will be replaced when DynaPosty doesn't recognize the URL Variable Value, or the URL Variable just isn't in the URL at all. For that reason, you can not delete this row.
 
 
 == Upgrade Notice ==
@@ -86,7 +86,7 @@ Version 0.2 is the first full version to be released.
 
 == Changelog ==
 
-0.2: Nov 22, 2010 
+0.2: Dec 6, 2010 
 
 Initial release
 

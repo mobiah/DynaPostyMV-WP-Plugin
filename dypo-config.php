@@ -162,7 +162,6 @@ function dypo_configDisplay() {
 			</tr>
 			<tr>
 				<th scope="row"><input type="submit" id="dypo_saveAll" name="dypo_saveAll" class="button-primary dypo_saveAll" value="Save All Settings" /></th>
-				<th scope="row"></th>
 				<th scope="row" title="ALERT: Delete all rows"><input type="submit" id="dypo_deleteAll" name="dypo_deleteAll" class="dypo_deleteAll" value="Delete All" /></th>
 			</tr>
 			<tr>
@@ -194,7 +193,7 @@ function dypo_configDisplay() {
 					// set the function which saves all the data
 					jQuery('.dypo_saveAll').click( function () {
 						//console.debug("dypo-config: jQuery dypo_saveAll");
-						//dypo_sanitizeInput( 'dypo_mainSettings', 'dypo_noSpaces' );
+						//dypo_sanitizeInput( 'dypo_mainSettings', 'dypo_noSpaces' );	// not called, we are allowing html shortcodes
 						// check for duplicate URL variables
 						if (dypo_findDupeURLVars('dypo_edit_')) {
 							var dup = dypo_getDup();
